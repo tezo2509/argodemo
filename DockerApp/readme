@@ -1,0 +1,77 @@
+# Docker Setup for .NET Application with SQL Server
+
+## 🔧 Prerequisites
+- Install [Docker](https://www.docker.com/)
+- [.NET SDK](https://dotnet.microsoft.com/en-us/download) installed
+
+---
+
+## 📦 Step 1: Create a .NET Project
+
+Create a basic .NET API project and add a simple controller that returns a "Hello" message.
+
+---
+
+## 🐳 Step 2: Add Docker Support
+
+1. Add a `Dockerfile` to the root of your project.
+2. Build the Docker image:
+   docker build -t imgname .
+Run the container locally:
+docker run -p 5000:8080 imgname
+This maps external port 5000 to internal port 8080 where the app is running.
+
+## Step 3: Add SQL Server with Docker-Compose
+Now let’s add SQL Server and enable inter-service communication using Docker Compose.
+
+📦 Required NuGet Packages
+Install the following:
+
+Microsoft.EntityFrameworkCore
+
+Microsoft.EntityFrameworkCore.Design
+
+Microsoft.EntityFrameworkCore.SqlServer
+
+Microsoft.EntityFrameworkCore.Tools
+
+🧠 Step 4: Setup Entity Framework
+Add a DbContext and a Product model.
+
+Create migrations:
+
+dotnet ef migrations add InitialCreate
+dotnet ef database update
+
+🌱 Step 5: Seed Mock Data
+In Program.cs, seed mock data:
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate();
+
+    if (!db.Products.Any())
+    {
+        db.Products.AddRange(
+            new Product { Name = "Laptop", Price = 999, CreatedDate = DateTime.UtcNow },
+            new Product { Name = "Phone", Price = 499, CreatedDate = DateTime.UtcNow }
+        );
+        db.SaveChanges();
+    }
+}
+
+📄 Step 6: Create docker-compose.yml
+Create a docker-compose.yml to define multiple services (API + SQL Server).
+
+Use a .env file or Docker secrets to handle sensitive values (like passwords).
+
+🚀 Step 7: Build and Run
+Run the application with:
+docker-compose up --build
+
+✅ Test the Application
+Use Postman or a browser:
+GET http://localhost:5000/productapi/product
+
+🛑 Stop the Container
+Press Ctrl + C to stop the containers.

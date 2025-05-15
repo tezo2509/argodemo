@@ -1,0 +1,22 @@
+services:
+    # Define the services for the application
+  sqlserver:
+  # Base image for SQL Server
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    # Environment variables for SQL Server
+    environment:
+      MSSQL_SA_PASSWORD: ${SA_PASSWORD}
+      ACCEPT_EULA: ${ACCEPT_EULA}
+      # Ports to expose external:internal
+    ports:
+      - "1433:1433"
+  productapi:
+    image: productapi
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # Dependencies that must be executed before this image is built
+    depends_on:
+      - sqlserver
+    ports:
+      - "5000:8080"

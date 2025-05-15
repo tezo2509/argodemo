@@ -16,7 +16,7 @@ WORKDIR /app
 COPY --from=build /app/out .
 
 # Expose the port your app runs on
-EXPOSE 5000
+EXPOSE 8080
 
 # Start the app
 ENTRYPOINT ["dotnet", "DockerApp.dll"]
