@@ -9,9 +9,11 @@ services:
       ACCEPT_EULA: ${ACCEPT_EULA}
       # Ports to expose external:internal
     ports:
-      - "1433:1433"
+      - "1433" #initially "1433:1433" removed 5000 to restrict external access(outside the network)
   productapi:
     image: productapi
+    environment:
+        App_Name: "ProductAPI" #Passing app name as environment variable to check which service is surviving our request
     build:
       context: .
       dockerfile: Dockerfile
@@ -19,4 +21,25 @@ services:
     depends_on:
       - sqlserver
     ports:
-      - "5000:8080"
+      - "8080" #initially "5000:8080" removed 5000 to restrict external access(outside the network)
+  # This is a duplicate of the productapi service to demonstrate multiple instances
+  productapi_dup:
+    image: productapi
+    environment:
+        App_Name: "ProductAPI_Dup"
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # Dependencies that must be executed before this image is built
+    depends_on:
+      - sqlserver
+    ports:
+      #initially "5001:8080" removed 5000 to restrict external access(outside the network)
+      - "8080" #external ports are helpful while attempting to connect from local machine and this will not work in hosted environment unless public ip
+  nginx-proxy:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+    #volume mounting mounting the data in nginx.conf file to container /etc/nginx/nginx.conf file 
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
